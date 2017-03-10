@@ -1,3 +1,4 @@
+import random
 from collections import OrderedDict
 from flask import Flask, request
 from flask_restful import Resource, Api, abort, fields, marshal_with, marshal
@@ -9,6 +10,7 @@ from db import questions
 app = Flask(__name__)
 api = Api(app)
 
+app.config['DEBUG'] = True
 app.config['DATABASE'] = "sqlite:///challenge.db"
 
 engine = create_engine(app.config['DATABASE'])
@@ -124,11 +126,27 @@ class QuestionListResource(Resource):
         return q, 201
 
 
-api.add_resource(QuestionResource, '/questions/<int:qid>/', endpoint='question')
+class RandomQuestionResource(Resource):
+    @marshal_with(question_fields)
+    def get(self):
+        with engine.connect() as conn:
+            # get random id
+            random_id=random.choice([
+                    row[questions.c.id]
+                    for row in conn.execute(select([questions.c.id]))])
+            q = Question(
+                conn.execute(select([questions])
+                    .where(questions.c.id == random_id))
+                    .fetchone())
+            return q
+
+
 api.add_resource(QuestionListResource, '/questions/')
+api.add_resource(QuestionResource, '/questions/<int:qid>/', endpoint='question')
+api.add_resource(RandomQuestionResource, '/questions/random/')
 
 
 ##### Frontend #####
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
