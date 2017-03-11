@@ -1,6 +1,6 @@
 import random
 from collections import OrderedDict
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_restful import Resource, Api, abort, fields, marshal_with, marshal
 from flask_restful import reqparse
 from sqlalchemy import create_engine, select
@@ -147,6 +147,9 @@ api.add_resource(RandomQuestionResource, '/questions/random/')
 
 
 ##### Frontend #####
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run()

@@ -1,6 +1,8 @@
 *.db
 __pycache__
 .venv
+node_modules
+static
 
 # editor crud
 *.sw*
