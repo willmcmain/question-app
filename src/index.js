@@ -36,5 +36,13 @@ $(document).ready(function() {
         );
     }
 
-    game_link();
+    if(window.location.hash === '#admin') {
+        ReactDOM.render(admin, document.getElementById('react-root'));
+        admin_link();
+    }
+    else {
+        ReactDOM.render(game, document.getElementById('react-root'));
+        game_link();
+    }
+
 });
