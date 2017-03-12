@@ -3,7 +3,7 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { FormControl, FormGroup, InputGroup, ControlLabel, Modal, Button,
-         Glyphicon } from 'react-bootstrap';
+         Glyphicon, Pager } from 'react-bootstrap';
 
 
 export default class QuestionAdmin extends React.Component {
@@ -16,6 +16,10 @@ export default class QuestionAdmin extends React.Component {
     }
 
     componentDidMount() {
+        this.load_questions();
+    }
+
+    componentDidUpdate() {
         this.load_questions();
     }
 
@@ -73,9 +77,28 @@ export default class QuestionAdmin extends React.Component {
 
     }
 
+    next_page() {
+        const next = this.state.page + 1;
+        this.setState({page: next});
+    }
+
+    previous_page() {
+        const next = this.state.page - 1;
+        this.setState({page: next});
+    }
+
     render() {
         return (
           <div>
+            <Pager>
+              <Pager.Item previous
+                disabled={this.state.page === 1}
+                onClick={()=>this.previous_page()}>
+                Previous
+              </Pager.Item>
+              Page {this.state.page}
+              <Pager.Item next onClick={()=>this.next_page()}>Next</Pager.Item>
+            </Pager>
             <QuestionForm onsave={(q)=>this.add_question(q)}>
               Add Question
             </QuestionForm>
