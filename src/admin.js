@@ -2,13 +2,16 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {FormControl, FormGroup, InputGroup, ControlLabel, Modal, Button, Glyphicon} from 'react-bootstrap';
+import { FormControl, FormGroup, InputGroup, ControlLabel, Modal, Button,
+         Glyphicon } from 'react-bootstrap';
+
 
 export default class QuestionAdmin extends React.Component {
     constructor() {
         super();
         this.state = {
             questions: [],
+            page: 1,
         }
     }
 
@@ -19,7 +22,8 @@ export default class QuestionAdmin extends React.Component {
     load_questions() {
         var that = this;
         $.ajax({
-            url: "/questions/?results_per_page=25"
+            url: "/questions/?sort=desc&results_per_page=25&page="
+                + this.state.page,
         })
         .done(function(data) {
             that.setState({
@@ -42,7 +46,7 @@ export default class QuestionAdmin extends React.Component {
         });
     }
 
-    update_question(question) {
+    edit_question(question) {
         var that = this;
         $.ajax({
             url: '/questions/' + question.qid + '/',
@@ -55,8 +59,26 @@ export default class QuestionAdmin extends React.Component {
         })
     }
 
+    add_question(question) {
+        var that = this;
+        $.ajax({
+            url: '/questions/',
+            method: 'POST',
+            data: question,
+            traditional: true
+        })
+        .done(function(data) {
+            that.load_questions();
+        })
+
+    }
+
     render() {
         return (
+          <div>
+            <QuestionForm onsave={(q)=>this.add_question(q)}>
+              Add Question
+            </QuestionForm>
             <table className='table table-hover'>
               <thead>
                 <tr>
@@ -71,11 +93,12 @@ export default class QuestionAdmin extends React.Component {
                   <QuestionEntry
                     key={q.qid}
                     question={q}
-                    onupdate={(qid) => this.update_question(qid)}
+                    onedit={(q) => this.edit_question(q)}
                     ondelete={(qid) => this.delete_question(qid)} />
                 )}
               </tbody>
             </table>
+          </div>
         );
     }
 }
@@ -85,7 +108,9 @@ function QuestionEntry(props) {
     return (
         <tr>
           <td>
-            <EditBox question={props.question} onupdate={props.onupdate} />
+            <QuestionForm question={props.question} onsave={props.onedit}>
+              <Glyphicon glyph='pencil' />
+            </QuestionForm>
             <DeleteBox question={props.question} ondelete={props.ondelete} />
           </td>
           <td>{props.question.question}</td>
@@ -142,13 +167,27 @@ class DeleteBox extends React.Component {
 }
 
 
-class EditBox extends React.Component {
+// Gives an edit form when passed question prop, otherwise gives an add form
+class QuestionForm extends React.Component {
     constructor(props) {
         super(props);
+        if(props.question === undefined) {
+            this.type = 'add';
+            this.original_question = {
+                question: '',
+                answer: '',
+                distractors: ['']
+            }
+        }
+        else {
+            this.type = 'edit';
+            this.original_question = props.question;
+        }
+
         this.state = {
             show: false,
             // deep copy question object so we don't clobber the state
-            question: $.extend(true, {}, props.question)
+            question: $.extend(true, {}, this.original_question)
         }
     }
 
@@ -161,12 +200,12 @@ class EditBox extends React.Component {
         // we close the edit box without saving
         this.setState({
             show: false,
-            question: $.extend(true, {}, this.props.question)
+            question: $.extend(true, {}, this.original_question)
         });
     }
 
-    update() {
-        this.props.onupdate(this.state.question);
+    save() {
+        this.props.onsave(this.state.question);
         this.close();
     }
 
@@ -199,12 +238,14 @@ class EditBox extends React.Component {
         return (
           <div style={ {display: 'inline-block'} }>
             <Button onClick={() => this.open()}>
-              <Glyphicon glyph='pencil' />
+              {this.props.children}
             </Button>
 
             <Modal show={this.state.show} onHide={() => this.close()}>
               <Modal.Header>
-                <Modal.Title>Edit Question</Modal.Title>
+                <Modal.Title>
+                  {this.type==='edit'?'Edit':'Add'} Question
+                </Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 <form>
@@ -250,8 +291,8 @@ class EditBox extends React.Component {
                 </form>
               </Modal.Body>
               <Modal.Footer>
-                <Button bsStyle='primary' onClick={()=>this.update()}>
-                  Update
+                <Button bsStyle='primary' onClick={()=>this.save()}>
+                  Save
                 </Button>
                 <Button onClick={()=>this.close()}>Cancel</Button>
               </Modal.Footer>

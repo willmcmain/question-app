@@ -3,7 +3,7 @@ from collections import OrderedDict
 from flask import Flask, request, render_template
 from flask_restful import Resource, Api, abort, fields, marshal_with, marshal
 from flask_restful import reqparse
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, desc
 
 from db import questions
 
@@ -98,12 +98,16 @@ class QuestionListResource(Resource):
         page = int(request.args.get('page', 1))
         num_results = int(
                 request.args.get('results_per_page', self.num_results))
+        sort = request.args.get('sort', 'asc')
 
         with engine.connect() as conn:
             query = (select([questions])
                 .limit(num_results)
                 .offset((page-1) * num_results)
             )
+            if sort == 'desc':
+                query = query.order_by(desc(questions.c.id))
+
             data = []
             for row in conn.execute(query):
                 q = Question(row)
