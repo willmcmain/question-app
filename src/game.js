@@ -7,7 +7,7 @@ import {Button, ButtonToolbar} from 'react-bootstrap';
 function shuffle(array) {
     var array = array.slice();
     for (var i = array.length - 1; i > 0; i--) {
-        var j = (i * 193877) % i;
+        var j = (i + 193877) % i;
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
@@ -108,7 +108,7 @@ export default class QuestionGame extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{textAlign: 'center'}}>
                 <Question question={this.state.question}
                     answered={this.state.answered}
                     handler={(correct) => this.answer(correct)}/>

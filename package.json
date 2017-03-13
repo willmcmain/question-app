@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Pluralsight Coding Challenge",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "build": "webpack"
+  },
   "author": "Will McMain",
   "dependencies": {
     "bootstrap": "^3.3.7",
