@@ -2,6 +2,7 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Button, ButtonToolbar} from 'react-bootstrap';
 
 function shuffle(array) {
     var array = array.slice();
@@ -15,34 +16,49 @@ function shuffle(array) {
 
 function Answer(props) {
     var click = (() => props.handler(props.correct));
-    return (<button
+    var style = (props.answered ?
+              (props.correct ? "success" : "danger")
+              : "default");
+    return (<Button
+        bsSize='large'
+        bsStyle={style}
+        style={{'margin-right': "10px"}}
         type='button'
-        disabled={props.disabled}
+        disabled={props.answered}
         onClick={click}>
         {props.answer}
-    </button>)
+    </Button>)
 }
 
 
 function Question(props) {
     var answers = shuffle(
         [props.question.answer].concat(props.question.distractors));
-    return (<div>
-            <div>{props.question.question}</div>
-            <ul>
-                {answers.map((ans, i) =>
-                    <li key={i}>
-                        <Answer answer={ans}
-                          correct={ans===props.question.answer}
-                          handler={props.handler}
-                          disabled={props.answered} />
-                    </li>)}
-            </ul>
-            </div>)
+    return (
+      <div>
+        <h1>{props.question.question}</h1>
+        <p>
+          {answers.map((ans, i) =>
+            <Answer
+              key={i}
+              answer={ans}
+              correct={ans===props.question.answer}
+              handler={props.handler}
+              answered={props.answered} />
+          )}
+        </p>
+      </div>)
 }
 
 function RightOrWrong(props) {
-    return <div>{props.correct?"Correct!":"Wrong!"}</div>
+    var style = {
+        'font-size': '32px',
+        color: props.correct?'green':'red',
+    }
+    return (
+      <div style={style}>
+        {props.correct?"Correct!":"Wrong!"}
+      </div>)
 }
 
 export default class QuestionGame extends React.Component {
@@ -96,12 +112,14 @@ export default class QuestionGame extends React.Component {
                 <Question question={this.state.question}
                     answered={this.state.answered}
                     handler={(correct) => this.answer(correct)}/>
-                <button type='button'
-                    disabled={!this.state.answered}
-                    onClick={() => this.next()}>Next</button>
                 {this.state.rwdisplay}
-                <div>Score:
-                  {this.state.score} correct out of {this.state.total}
+                <Button
+                    bsSize='large'
+                    type='button'
+                    disabled={!this.state.answered}
+                    onClick={() => this.next()}>Next</Button>
+                <div style={{"font-size": 24}}>
+                   Score: {this.state.score} correct out of {this.state.total}
                 </div>
             </div>
         )
