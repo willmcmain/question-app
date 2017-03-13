@@ -19,21 +19,29 @@ export default class QuestionAdmin extends React.Component {
         this.load_questions();
     }
 
-    componentDidUpdate() {
-        this.load_questions();
-    }
+    load_questions(page) {
+        if(page === undefined) {
+            page = this.state.page
+        }
 
-    load_questions() {
         var that = this;
         $.ajax({
-            url: "/questions/?sort=desc&results_per_page=25&page="
-                + this.state.page,
+            url: "/questions/?sort=desc&results_per_page=25&page=" + page,
         })
         .done(function(data) {
             that.setState({
                 questions: data,
+                page: page
             });
         })
+    }
+
+    clean_question(question) {
+        question.distractors = question.distractors.filter((x) => x !== '');
+        if(question.distractors.length === 0) {
+            question.distractors = ['']
+        }
+        return question
     }
 
     delete_question(qid) {
@@ -55,7 +63,7 @@ export default class QuestionAdmin extends React.Component {
         $.ajax({
             url: '/questions/' + question.qid + '/',
             method: 'PUT',
-            data: question,
+            data: this.clean_question(question),
             traditional: true
         })
         .done(function(data) {
@@ -68,7 +76,7 @@ export default class QuestionAdmin extends React.Component {
         $.ajax({
             url: '/questions/',
             method: 'POST',
-            data: question,
+            data: this.clean_question(question),
             traditional: true
         })
         .done(function(data) {
@@ -79,12 +87,12 @@ export default class QuestionAdmin extends React.Component {
 
     next_page() {
         const next = this.state.page + 1;
-        this.setState({page: next});
+        this.load_questions(next);
     }
 
     previous_page() {
         const next = this.state.page - 1;
-        this.setState({page: next});
+        this.load_questions(next);
     }
 
     render() {
