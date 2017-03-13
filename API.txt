@@ -1,0 +1,43 @@
+Questions API
+=============
+
+Questions List
+--------------
+endpoint: http://<hostname>/questions/
+
+GET Returns a list of questions in the database.
+By default it returns the first 100
+Supports the following arguments:
+page (default 1): which page of questions to show
+results_per_page (default 100): number of results per page
+sort: set to "desc" to show most recent questions first
+
+e.g. this would return the 50 most recent questions in descending order:
+http://<hostname>/questions/?page=1&results_per_page=50&sort=desc
+
+POST adds a new question to the database. The body must
+contain the following params:
+question: the question text
+answer: answer text
+distractors: distractor text
+
+for multiple distractors, send the param "distractors" multiple times, e.g.:
+distractors=wrong1&distractors=wrong2
+
+
+Individual Questions
+--------------------
+endpoint: http://<hostname>/questions/<qid>/
+
+GET returns the question with the id given as qid
+PUT updates an existing question or, if the question with qid doesn't exist
+  creates it. Requires the same parameters as POSTing to the Questions List 
+  endpoint
+DELETE deletes the question with the given id
+
+
+Random Questions
+----------------
+endpoint: http://<hostname>/questions/random/
+
+GET returns a question randomly selected from the database

@@ -1,0 +1,33 @@
+Python
+======
+This app requires Python 3
+I recommend using a virtual environment to run all the parts of this app
+$ virtualenv -p python3 .venv
+$ source .venv/bin/activate
+
+all the required libraries are listed in requirements.txt and can be installed
+with pip
+$ pip install -r requirements.txt
+
+
+Database
+========
+You'll need to load the questions into a sqlite database called challenge.db
+The csv file containing the questions is NOT stored in the git repo!
+$ python3 parse_questions.py path/to/question_dump.csv challenge.db
+
+
+Javascript
+==========
+All the required javascript packages are in package.json; install all
+dependencies by running
+$ npm install
+
+The live javascript must be built with webpack
+$ ./node_packages/.bin/webpack
+
+Server
+======
+Simply run the server with python
+$ python3 app.py
+and access it at http://localhost:5000/
